@@ -1,11 +1,34 @@
-<div align="center">
+# 📖 AiPictureBook (AI 동화책 만들기)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Google Gemini API를 활용하여 이야기 기획부터 삽화 생성, 구연동화 음성 낭독까지 완성하는 나만의 맞춤형 동화책 제작 웹 애플리케이션입니다.
 
-  <h1>Built with AI Studio</h2>
+## ✨ 주요 기능
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+- **AI 맞춤 기획**: 주제와 독자 연령, 쪽수에 맞춰 기승전결이 살아있는 동화 초안 자동 생성
+- **캐릭터 & 배경 시트**: 주인공의 생김새와 주요 장소(아파트 경비실, 소방서, 숲속 등)의 일관성을 유지하는 참조 시트 제작
+- **다채로운 화풍 지원**: 수채화, 지브리 애니메이션, 3D 디즈니 픽사, 크레파스 낙서, 클레이 등 20여 종의 화풍 지원
+- **동화 구연 낭독 (TTS)**: 표준 한국어 억양과 자연스러운 감정 표현의 동화 낭독 목소리 지원
+- **고해상도 ZIP 저장**: 완성된 동화책의 표지, 내지 삽화와 글을 인쇄용 고해상도 이미지로 한 번에 압축 저장
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## 🚀 시작하기
 
-</div>
+### 설치 및 실행
+
+```bash
+# 패키지 설치
+npm install
+
+# 개발 서버 실행
+npm run dev
+```
+
+브라우저에서 `http://localhost:3000`으로 접속하여 이용하실 수 있습니다.
+
+## 🔑 API 키 설정
+
+- 상단의 **[🔑 API 키 등록]** 버튼을 통해 본인의 Google Gemini API 키를 직접 등록하여 바로 사용하실 수 있습니다.
+- 또는 프로젝트 루트에 `.env.local` 파일을 생성하여 아래와 같이 환경변수로 설정할 수도 있습니다:
+
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```

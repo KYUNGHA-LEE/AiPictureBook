@@ -1,0 +1,8 @@
+{
+  "name": "이경하강사의 AI동화제작툴(0930)",
+  "description": "이경하 선생님의 수업을 위한 AI 기반 동화책 제작 및 일러스트레이션 도구입니다.",
+  "requestFramePermissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

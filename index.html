@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이경하선생님 동화제작툴(0930) - 나만의 동화책 만들기</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: { extend: {
+          fontFamily: { sans: ['Pretendard Variable','Pretendard','Apple SD Gothic Neo','Malgun Gothic','sans-serif'] },
+          colors: {
+            orange: { 50:'#fdf6f1',100:'#fbeadf',200:'#f5d0b9',300:'#eeaf88',400:'#e68b57',500:'#dc7038',600:'#c25a2a',700:'#9c4622' },
+            indigo: { 50:'#f3f5fb',100:'#e3e8f6',200:'#c8d1ec',300:'#a4b1de',400:'#7686c8',500:'#5967b5',600:'#48559c',700:'#3a447e' }
+          }
+        } }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@300;400;700&family=Gamja+Flower&family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'GmarketSans';
+            src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2001@1.1/GmarketSansMedium.woff') format('woff');
+        }
+        .font-gmarket { font-family: 'GmarketSans', sans-serif; }
+        .font-cute { font-family: 'Gaegu', cursive; }
+
+        /* ---------- 책 페이지 (B5 등) ---------- */
+        .b5-page {
+            background-color: white;
+            position: relative;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+            box-shadow: 0 10px 60px rgba(0,0,0,0.15);
+        }
+        .cover-page { justify-content: flex-end; }
+        .end-page { justify-content: center; padding: 12mm; }
+
+        /* 페이지 크기·그림/글 영역은 입력한 mm 값으로 코드에서 계산해요 */
+
+        .image-section {
+            background-color: #fdfdfd;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #f1f1f1;
+            position: relative;
+        }
+        .text-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3mm 8mm;
+            box-sizing: border-box;
+            text-align: center;
+            line-height: 1.6;
+            word-break: keep-all;
+            overflow: hidden;
+        }
+        /* 종이 느낌: 외부 이미지 대신 CSS로(외부 이미지는 저장 시 CORS 오류가 나요) */
+        .paper-texture { background-image: linear-gradient(135deg, #fffdf9 0%, #fff8ef 100%); }
+
+        /* 저장용 페이지는 화면 밖에 그려 둡니다(display:none이면 캡처가 안 돼요) */
+        .export-hidden { position: fixed; left: -20000px; top: 0; pointer-events: none; }
+
+        /* ---------- 공통 ---------- */
+        body { font-family: 'Pretendard Variable','Pretendard','Nanum Gothic',sans-serif; background-color: #faf7f2; color:#1f2937; -webkit-font-smoothing: antialiased; }
+        .tale-card { background:#fff; border:1px solid #efe9df; border-radius:24px; box-shadow: 0 1px 2px rgba(60,40,20,.04), 0 12px 32px -12px rgba(60,40,20,.10); }
+        .tale-label { font-size:12px; font-weight:600; color:#8a7f72; letter-spacing:.02em; }
+        .tale-field { width:100%; background:#fbfaf8; border:1px solid #e9e3d9; border-radius:14px; padding:14px 16px; font-weight:500; outline:none; transition:border-color .15s, box-shadow .15s, background .15s; }
+        .tale-field:focus { background:#fff; border-color:#dc7038; box-shadow:0 0 0 4px rgba(220,112,56,.12); }
+        .tale-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; font-weight:600; border-radius:14px; padding:12px 20px; transition:all .15s; }
+        .tale-btn:active { transform:scale(.98); }
+        .tale-btn-primary { background:#dc7038; color:#fff; box-shadow:0 6px 16px -6px rgba(220,112,56,.55); }
+        .tale-btn-primary:hover { background:#c25a2a; }
+        .tale-btn-ghost { background:#fff; color:#4b5563; border:1px solid #e5dfd4; }
+        .tale-btn-ghost:hover { background:#faf7f2; border-color:#d6cdbd; }
+        .tale-btn-ai { background:#48559c; color:#fff; box-shadow:0 6px 16px -6px rgba(72,85,156,.5); }
+        .tale-btn-ai:hover { background:#3a447e; }
+        button:disabled { cursor:not-allowed; }
+        .loading-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .animate-fadeIn { animation: fadeIn .4s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+        .cover-btn {
+            padding: 10px 20px; border-radius: 9999px; font-weight: 900; font-size: 14px;
+            box-shadow: 0 10px 25px rgba(0,0,0,.25); display: inline-flex; align-items: center; gap: 8px; transition: transform .15s;
+        }
+        .cover-btn:hover { transform: scale(1.08); }
+        .key-input {
+            width: 100%; padding: 13px 16px; border-radius: 14px; background: #fbfaf8;
+            border: 1px solid #e9e3d9; font-weight: 500; outline: none;
+        }
+        .key-input:focus { border-color: #dc7038; box-shadow:0 0 0 4px rgba(220,112,56,.12); background:#fff; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f6f1e9; }
+        ::-webkit-scrollbar-thumb { background: #e3d6c3; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d3bfa3; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
